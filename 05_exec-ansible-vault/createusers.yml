@@ -1,0 +1,21 @@
+# ===  vars/secret.yml ===
+# newusers:
+#   - name: demouser1
+#     pw: soldesk1.
+#   - name: deomouser2
+#     pw: soldesk1.
+# ========================
+
+- name: 1. 사용자 추가
+  hosts: devservers
+  remote_user: devops
+  become: true
+  vars_files:
+    - vars/secret.yml
+  tasks:
+    - name: 1) 2명의 사용자 추가 - {{ item }}
+      ansible.builtin.user:
+        name: "{{ item.name }}"
+        password: "{{ item.pw | password_hash('sha512') }}"
+      loop: "{{ newusers }}"
+    

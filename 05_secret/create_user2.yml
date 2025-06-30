@@ -1,0 +1,14 @@
+---
+- name: 1. 사용자 추가
+  hosts: web2.example.com
+  vars_files:
+    - secret2.yml
+    #######################################
+    # username: user1
+    # pwhash: (HASH)
+    #######################################
+  tasks:
+    - name: 1) user1 사용자 추가
+      ansible.builtin.user:
+        name: "{{ username }}"
+        password: "{{ pwhash | password_hash('sha512') }}"

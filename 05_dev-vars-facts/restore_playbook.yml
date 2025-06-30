@@ -1,0 +1,27 @@
+---
+- name: Restore playbook.yml
+  hosts: all
+  tasks:
+    - name: 1) 방화벽 포트 제거 - http
+      ansible.posix.firewalld:
+        service: http
+        permanent: true
+        immediate: true
+        state: disabled
+
+    - name: 2) 서비스 종료 - httpd
+      ansible.builtin.systemd:
+        name: "{{ ansible_local.custom.general.service }}"
+        state: stopped
+        enabled: false
+      ignore_errors: true
+
+    - name: 3) 패키지 제거 - httpd
+      ansible.builtin.dnf:
+        name: "{{ ansible_local.custom.general.package }}"
+        state: absent
+
+    - name: 4) 사용자 정의 팩트 삭제 - /etc/ansible/facts.d 삭제
+      ansible.builtin.file:
+        path: /etc/ansible/facts.d
+        state: absent

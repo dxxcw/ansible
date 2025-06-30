@@ -1,0 +1,108 @@
+---
+- name: WEB(PHP)-DB 구조
+  hosts: webservers
+  tasks:
+    #################################################
+    # 1  ) WEB 서버 구축
+    # 1-1) 패키지 설치 - httpd, mod_ssl, firewalld, php
+    # 1-2) 서비스 설정 - /var/www/html/index.html
+    # 1-3) 서비스 기동 - httpd
+    # 1-4) 방화벽 등록 - http, https
+    # 2  ) DB 서버 구축
+    # 2-1) 패키지 설치 - mariadb, mariadb-server, python3-PyMySQL
+    # 2-2) 서비스 기동 - mariadb
+    # 2-3) 서비스 설정
+    #      - mysql_secure_install 스크립트
+    #      - 사용자 추가
+    # 2-4) 방화벽 등록 - mysql
+    #################################################
+
+    # 1) WEB(PHP) 서버 구축
+    - name: 1-1) 패키지 설치 - httpd, mod_ssl, php, firewalld
+      ansible.builtin.yum:
+        name:
+          - httpd
+          - mod_ssl
+          - php
+          - firewalld
+        state: present
+
+    - name: 1-2) 서비스 설정 - /var/www/html/index.php
+      ansible.builtin.get_url:
+        url: http://192.168.10.10/index.php
+        dest: /var/www/html/index.php
+        mode: '0644'
+
+    - name: 1-3) 서비스 기동 - httpd
+      ansible.builtin.service:
+        name: httpd
+        state: started
+        enabled: true
+
+    - name: 1-4) 방화벽 등록 - http, https
+      ansible.posix.firewalld:
+        service: "{{ item }}"
+        permanent: true
+        immediate: true
+        state: enabled
+      loop:
+        - http
+        - https
+
+    # 2) DB 서버 구축
+    - name: 2-1) 패키지 설치 - mariadb, mariadb-server, python3-PyMySQL
+      ansible.builtin.yum:
+        name:
+          - mariadb
+          - mariadb-server
+          - python3-PyMySQL
+        state: present
+
+    - name: 2-2) 서비스 기동 - mariadb
+      ansible.builtin.service:
+        name: mariadb
+        enabled: true
+        state: started
+
+- name: WEB 서버 설정
+  hosts: web1
+  become: true
+  tasks:
+    - name: 2-3) 서비스 설정 - mysql_secure_installation 스크립트
+      ansible.builtin.expect:
+        command: mysql_secure_installation
+        responses:
+          'Enter current password for root \(enter for none\):': ''
+          'Switch to unix_socket authentication.*': 'Y'
+          'Change the root password\?': 'Y'
+          'New password:': 'soldesk1.'
+          'Re-enter new password:': 'soldesk1.'
+          'Remove anonymous users\?': 'Y'
+          'Disallow root login remotely\?': 'Y'
+          'Remove test database and access to it\?': 'Y'
+          'Reload privilege tables now\?': 'Y'
+        timeout: 1
+
+    - name: 2-3) 서비스 설정 - DB 사용자 추가
+      become: true
+      community.mysql.mysql_user:
+        login_user: root
+        login_password: 'soldesk1.'
+        name: soldesk
+        host: '%'
+        password: 'soldesk1.'
+        priv: '*.*:ALL'
+        state: present
+
+- name: WEB 서버 요청 확인
+  hosts: localhost
+  tasks:
+    - name: 1) http://192.168.10.10/index.php 웹 요청
+      ansible.builtin.uri:
+        url: http://192.168.10.10/index.php
+        status_code: 200
+      register: output
+
+    - name: 2) 웹 응답 내용 확인
+      ansible.builtin.debug:
+        var: output

@@ -1,0 +1,9 @@
+pkg_http: httpd
+pkg_https: mod_ssl
+pkg_fw: firewalld
+webconf: httpd.conf
+htaccess: .htaccess
+secretdir: /etc/httpd/secrets
+htpasswd: htpasswd
+svc_web: httpd
+svc_fw: firewalld

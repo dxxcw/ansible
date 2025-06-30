@@ -1,0 +1,5 @@
+---
+# Variable File
+package:
+  web_pkg: httpd
+  was_pkg: tomcat

@@ -1,0 +1,36 @@
+- name: Restore_Playbook
+  hosts: all
+  vars_files:
+    - vars/vars.yml
+
+  tasks:
+    ############################################
+    # 반드시 변수를 사용 (vars_files 사용)
+    # 1) http 서비스 종료
+    # 2) index.html 삭제
+    # 3) httpd 서비스 비활성화
+    # 4) httpd 패키지 삭제
+    ############################################
+
+    - name: 1) http 서비스 종료
+      ansible.builtin.service:
+        name: "{{ item }}"
+        state: stopped
+      loop:
+        - "{{ svc_web }}"
+        - "{{ svc_fw }}"
+
+    - name: 2) index.html 삭제
+      ansible.builtin.file:
+        path: "{{ indexfile }}"
+        state: absent
+
+    - name: 3) httpd 서비스 비활성화
+      ansible.builtin.service:
+        name: "{{ svc_web }}"
+        state: stopped
+
+    - name: 4) httpd 패키지 삭제
+      ansible.builtin.yum:
+        name: "{{ pkg_http }}"
+        state: absent

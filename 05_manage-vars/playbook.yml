@@ -1,0 +1,51 @@
+---
+- name: 1. 준비 작업 - 사용자 정의 facts
+  ansible.builtin.import_playbook: setup_facts.yml
+
+- name: 2. 변수 테스트
+  hosts: lamp
+  gather_facts: true
+  vars:
+    firewall: firewalld
+  vars_files:
+    - vars/main.yml
+  tasks:
+    ###########################################
+    # 1) 서비스 패키지 설치 - mariadb-server, httpd
+    # 2) 서비스 기동 - mariadb, httpd
+    # 3) 서비스 설정 - /var/www/html/index.html
+    # 4) 방화벽 포트
+    #    - 방화벽 패키지 설치
+    #    - 방화벽 서비스 기동
+    #    - 방화벽 포트 등록
+    ###########################################
+    - name: 1,2) 서비스 패키지 설치 + 서비스 기동
+      ansible.builtin.include_tasks: tasks/main.yml
+
+    - name: 3) 서비스 설정 - /var/www/html/index.html
+      ansible.builtin.copy:
+        content: |
+         <pre><h1>
+         {{ inventory_hostname }}({{ssh_host}}) has been customized by Ansible
+         {{ ansible_fqdn }}({{ ansible_default_ipv4.address }}) has been customized by Ansible
+         </pre></h1>
+        dest: "{{ web_root }}/index.html"
+        mode: '0644'
+
+    - name: 4) 방화벽 포트 - 방화벽 패키지 설치
+      ansible.builtin.dnf:
+        name: "{{ firewall }}"
+        state: present
+
+    - name: 4) 방화벽 포트 - 방화벽 서비스 기동
+      ansible.builtin.systemd:
+        name: "{{ firewall }}"
+        state: started
+        enabled: true
+
+    - name: 4) 방화벽 포트 등록
+      ansible.posix.firewalld:
+        service: "{{ fw_port }}"
+        permanent: true
+        immediate: true
+        state: "{{ fw_state }}"

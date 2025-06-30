@@ -1,0 +1,26 @@
+---
+- name: 1. HTTP 웹 서버 구축
+  hosts: webserver
+  tasks:
+    #############################################
+    # 1) 패키지 설치 - httpd
+    # 2) 서비스 기동 - httpd
+    # 3) 방화벽 포트 등록 - http
+    #############################################
+    - name: 1) 패키지 설치 - httpd
+      ansible.builtin.dnf:
+        name: "{{ ansible_local.custom.general.package }}"
+        state: present
+
+    - name: 2) 서비스 기동 - httpd
+      ansible.builtin.systemd:
+        name: "{{ ansible_local.custom.general.service }}"
+        state: "{{ ansible_local.custom.general.state }}"
+        enabled: true
+
+    - name: 3) 방화벽 포트 등록 - http
+      ansible.posix.firewalld:
+        service: http
+        permanent: true
+        immediate: true
+        state: enabled

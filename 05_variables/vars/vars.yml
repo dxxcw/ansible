@@ -1,0 +1,10 @@
+
+pkg_http: httpd
+pkg_https: mod_ssl
+pkg_required_uri: python3-PyMySQL
+pkg_fw: firewalld
+indexfile: /var/www/html/index.html
+svc_web: httpd
+svc_fw: firewalld
+fw_80_tcp: http
+fw_443_tcp: https

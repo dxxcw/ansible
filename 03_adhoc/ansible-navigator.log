@@ -1,0 +1,8 @@
+2025-06-23T06:40:26.431285+00:00 WARNING 'ansible_navigator.image_manager.puller._log_message' Image inspection failed, image assumed to be corrupted or missing
+2025-06-23T06:40:26.432112+00:00 WARNING 'ansible_navigator.image_manager.puller._log_message' stdout: []
+
+2025-06-23T06:40:26.432154+00:00 WARNING 'ansible_navigator.image_manager.puller._log_message' stderr: Error: ghcr.io/ansible/creator-ee:v0.22.0: image not known
+
+2025-06-23T06:47:01.200259+00:00 WARNING 'ansible_navigator.actions.doc._update_args' Configuration errors encountered, rolling back to previous configuration.
+2025-06-23T06:47:01.200612+00:00 WARNING 'ansible_navigator.actions.doc._update_args' Issues were found while applying the settings.
+2025-06-23T06:47:01.200660+00:00 WARNING 'ansible_navigator.actions.doc._update_args' A plugin name or other parameter is required when using the doc subcommand

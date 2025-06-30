@@ -1,0 +1,47 @@
+---
+- name: Restore Web Server
+  hosts: all
+  become: true
+  tasks:
+    ########################################
+    # (ㄱ) 방화벽 포트 제거 (firewalld)
+    # (ㄴ) 서비스 종료 (file)
+    # (ㄷ) 서비스 설정 삭제 (service)
+    # (ㄹ) 패키지 삭제 (yum)
+    ########################################
+
+    - name: 1) 방화벽 포트 제거 - http(firewalld)
+      ansible.posix.firewalld:
+        service: "{{ item }}"
+        permanent: true
+        immediate: true
+        state: disabled
+      loop:
+        - http
+        - https
+        - mysql
+
+    - name: 2) 서비스 종료 - httpd(systemd)
+      ansible.builtin.service:
+        name: "{{ item }}"
+        state: stopped
+        enabled: false
+      loop:
+        - httpd
+        - mariadb
+
+    - name: 3) 서비스 설정 삭제 - index.php(file)
+      ansible.builtin.file:
+        path: /var/www/html/index.php
+        state: absent
+
+    - name: 패키지 삭제 (yum)
+      ansible.builtin.yum:
+        name:
+          - httpd
+          - mod_ssl
+          - php
+          - python3-PyMySQL
+          - mariadb
+          - mariadb-server
+        state: absent

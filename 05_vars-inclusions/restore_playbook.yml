@@ -1,0 +1,47 @@
+---
+- name: 1. 파일 서버 패키지 제거 및 디렉토리 정리
+  hosts: fileservers
+  tasks:
+    - name: 1) 변수 포함 - 패키지
+      ansible.builtin.include_vars: package.yml
+
+    - name: 2) 패키지 삭제 - httpd, tomcat
+      ansible.builtin.include_tasks: remove_package.yml
+      vars:
+        package:
+          - httpd
+          - tomcat
+
+    - name: 3) 변수 포함 - 디렉토리 경로
+      ansible.builtin.include_vars: paths.yml
+      # include_vars: 
+      #   file: paths.yml
+      #   name: paths  ← 이 방식으로 별도 네임스페이스를 줄 수도 있음
+
+    - name: 4) 디렉토리 삭제 - fileserver, dbpath
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - "{{ paths.fileserver }}"
+        - "{{ paths.dbpath }}"
+
+
+
+    # - name: 1) 변수 포함
+    #   ansible.builtin.include_vars: package.yml
+      
+    # - name: 2) 패키지 설치 - httpd
+    #   ansible.builtin.include_tasks: install_package.yml
+      
+    # - name: 3) 패키지 설치 - epel-release
+    #   ansible.builtin.include_tasks: install_package.yml
+    #   vars:
+    #     package:
+    #       web_pkg: epel-release
+
+    # - name: 4) 패키지 설치 - tomcat
+    #   ansible.builtin.include_tasks: install_package.yml
+    #   vars:
+    #     package:
+    #       web_pkg: tomcat

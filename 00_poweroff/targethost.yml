@@ -1,0 +1,9 @@
+---
+- name: Power off all managed hosts
+  hosts: ansible1,ansible2,ansible3,ansible4
+  gather_facts: false
+  tasks:
+    - name: PowerOff
+      community.general.shutdown:
+        delay: 0
+      ignore_errors: true

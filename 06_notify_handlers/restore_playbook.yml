@@ -1,0 +1,24 @@
+---
+- name: Restore playbook.yml
+  hosts: all
+  remote_user: root
+  gather_facts: false
+  vars:
+    pkg_db:
+      - mariadb-server
+      - mariadb
+      - python3-PyMySQL
+    svc_db: mariadb
+    url: http://ansible.example.com
+
+  tasks:
+    - name: Stop DB service
+      ansible.builtin.service:
+        name: "{{ svc_db }}"
+        state: stopped
+        enabled: false
+
+    - name: Delete DB Packages - mariadb-server, mariadb, python3-PyMySQL
+      ansible.builtin.yum:
+        name: "{{ pkg_db }}"
+        state: absent

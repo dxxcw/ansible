@@ -1,0 +1,6 @@
+---
+- name: Power off all managed hosts
+  ansible.builtin.import_playbook: targethost.yml
+
+- name: PowerOff the Control Node
+  ansible.builtin.import_playbook: contorlnode.yml

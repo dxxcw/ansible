@@ -1,0 +1,59 @@
+---
+- name: MariaDB server is Installed
+  hosts: databases
+  remote_user: root
+  gather_facts: false
+  vars:
+    pkg_db:
+      - mariadb-server
+      - mariadb
+      - python3-PyMySQL
+    svc_db: mariadb
+    url: http://ansible.example.com
+
+  tasks:
+    #################################################
+    # 1) Install DB Packages - mariadb-server, mariadb, python3-PyMySQL
+    #    -> notify "set db password"
+    # 2) Start DB service - mariadb
+    # 3) Setting DB - /etc/my.cnf(ansible:/var/www/html/my.cnf.standard)
+    #    -> notify "restart db service"
+    ##################################################
+    - name: Install DB Packages - mariadb-server, mariadb, python3-PyMySQL
+      ansible.builtin.yum:
+        name: "{{ pkg_db }}"
+        state: present
+      notify:
+        - Set db password
+
+    - name: Start DB service
+      ansible.builtin.service:
+        name: "{{ svc_db }}"
+        state: started
+        enabled: true
+
+    - name: Setting DB - /etc/my.cnf
+      ansible.builtin.get_url:
+        url: "{{ url }}/my.cnf.standard"
+        dest: /etc/my.cnf
+        owner: root
+        group: root
+        mode: '0644'
+        force: true
+      notify:
+        - Restart db service
+
+  handlers:
+    - name: Set db password
+      community.mysql.mysql_user:
+        # root@'%' => ALL privileges
+        name: root
+        password: soldesk1.
+        priv: '*.*:ALL'
+        state: present
+
+    - name: Restart db service
+      ansible.builtin.service:
+        name: "{{ svc_db }}"
+        state: restarted
+        

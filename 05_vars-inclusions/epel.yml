@@ -1,0 +1,20 @@
+---
+- name: 1. 패키지 설치
+  hosts: all
+  gather_facts: false
+  tasks:
+    ######################################################
+    # 1) epel-release 패키지 설치 - install_package.yml 사용
+    # 2) boxes 패키지 설치
+    ######################################################
+
+    - name: 1) epel-release 패키지 설치
+      ansible.builtin.include_tasks: install_package.yml
+      vars:
+        package:
+          web_pkg: epel-release
+
+    - name: 2) boxes 패키지 설치
+      ansible.builtin.dnf:
+        name: boxes
+        state: present

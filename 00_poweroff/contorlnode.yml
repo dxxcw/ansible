@@ -1,0 +1,18 @@
+---
+- name: PowerOff the Control Node
+  hosts: localhost
+  gather_facts: false
+  become: true
+  tasks:
+    - name: Pause 5 sec
+      ansible.builtin.pause:
+        seconds: 5
+
+    - name: PowerOff
+      # ansible.posix.at:
+      #   command: shutdown -h now
+      #   count: 1
+      #   units: minutes
+      community.general.shutdown:
+        delay: 5
+        force: true
