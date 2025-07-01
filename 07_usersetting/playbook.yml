@@ -1,0 +1,46 @@
+---
+- name: 0) 사용자 추가
+  hosts: all
+  tasks:
+    ######################################
+    # 1) 사용자 추가
+    # * ID/PASS: user09/user09
+    # * 키배포: authorized_keys
+    # * /etc/sudoers.d/developer
+    # 2) 사용자 환경 세팅
+    # * ~/.bashrc
+    # * ~/.local/share/ble.sh
+    ######################################
+    - name: 1) 사용자 추가
+      ansible.builtin.user:
+        name: user09
+        password: "{{ 'user09' | password_hash('sha512') }}"
+
+    - name: 1) 키배포 - authorized_keys
+      ansible.posix.authorized_key:
+        user: user09
+        state: present
+        key: "{{ lookup('file', '/home/ansible/.ssh/id_rsa.pub') }}"
+
+    - name: 1) 파일 생성 - /etc/sudoers.d/developer
+      ansible.builtin.copy:
+        src: files/user09
+        dest: /etc/sudoers.d/user09
+        owner: root
+        group: root
+        mode: '0440'
+
+    - name: 2) 사용자 환경 세팅 -  ~/.bashrc
+      ansible.builtin.template:
+        src: templates/bashrc.j2
+        dest: /home/user09/.bashrc
+        owner: user09
+        group: user09
+        mode: '0644'
+
+    - name: 2) 사용자 환경 세팅 - ~/.local/share/ble.sh
+      ansible.builtin.copy:
+        src: files/blesh
+        dest: /home/user09/.local/share
+        owner: user09
+        group: user09
