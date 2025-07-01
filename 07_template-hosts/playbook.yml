@@ -1,5 +1,5 @@
 ---
-- name: 0) /etc/hosts 파일 배포
+- name: 1. /etc/hosts 파일 배포
   hosts: all
   gather_facts: false
   tasks:
