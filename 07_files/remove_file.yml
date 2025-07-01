@@ -1,0 +1,9 @@
+---
+- name: Restore add_line.yml or add_block.yml
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Remove file ~/devops/users.txt
+      ansible.builtin.file:
+        path: /home/devops/users.txt
+        state: absent

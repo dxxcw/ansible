@@ -1,0 +1,29 @@
+---
+################################################################
+# 1) 사용자 추가 및 암호 설정 - developer/soldesk1.
+# 2) /etc/sudoers.d/developer (files/developer -> /etc/sudoers.d/)
+# 3) ~/.ssh/id_rsa.pub -> 배포 -> ~developer/.ssh/authorized_keys
+################################################################
+- name: 1. 사용자 추가
+  hosts: all
+  vars_files:
+    - secret2.yml
+  tasks:
+    - name: 1) 사용자 추가 및 암호 설정 - developer/soldesk1.
+      ansible.builtin.user:
+        name: "{{ username }}"
+        password: "{{ pwhash | password_hash('sha512') }}"
+
+    - name: 2) 파일 배포 - /etc/sudoers.d/developer
+      ansible.builtin.copy:
+        src: files/developer
+        dest: /etc/sudoers.d/developer
+        owner: root
+        group: root
+        mode: '0440'
+
+    - name: 3) SSH Public Key 배포
+      ansible.posix.authorized_key:
+        user: developer
+        state: present
+        key: "{{ lookup('file', '/home/ansible/.ssh/id_rsa.pub') }}"

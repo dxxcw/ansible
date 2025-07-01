@@ -1,0 +1,20 @@
+---
+- name: Change SELinux Mode
+  hosts: all
+  gather_facts: false
+  tasks:
+  # setenforce 1
+  # sed -i 's/^SELINUX=permissive/SELINUX=enforcing/' /etc/selinux
+    # - name: Change SELinux Mode permissive => enforcing
+    #   ansible.posix.selinux:
+    #     policy: targeted
+    #     state: enforcing
+
+    - name: Edit /etc/selinux/config File
+      ansible.builtin.lineinfile:
+        path: /etc/selinux/config
+        regexp: '^SELINUX='
+        line: 'SELINUX=permissive'
+
+    - name: Setting setenforce 0
+      ansible.builtin.command: setenforce 0
