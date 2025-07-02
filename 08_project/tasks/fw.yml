@@ -1,0 +1,19 @@
+---
+- name: Install Firewall Packages - {{ pkgs }}
+  ansible.builtin.dnf:
+    name: "{{ pkgs }}"
+    state: present
+
+- name: Start Firewall Service - {{ svc }}
+  ansible.builtin.systemd:
+    name: "{{ svc }}"
+    state: started
+    enabled: true
+
+- name: Register Firewall Ports - {{ fw_svcs }}
+  ansible.posix.firewalld:
+    service: "{{ item }}"
+    permanent: true
+    immediate: true
+    state: enabled
+  loop: "{{ fw_svcs }}"

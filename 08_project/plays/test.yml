@@ -1,0 +1,12 @@
+---
+- name: Test Web Request
+  hosts: localhost
+  become: false
+  gather_facts: false
+  tasks:
+    - name: Test Web Request
+      ansible.builtin.uri:
+        url: "{{ url }}"
+        status_code: 200
+        validate_certs: false
+        

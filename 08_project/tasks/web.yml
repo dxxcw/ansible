@@ -1,0 +1,11 @@
+---
+- name: Install Packages - {{ pkgs }}
+  ansible.builtin.dnf:
+    name: "{{ pkgs }}"
+    state: present
+
+- name: Start Web Services - {{ svc }}
+  ansible.builtin.systemd:
+    name: "{{ svc }}"
+    state: started
+    enabled: true
