@@ -1,0 +1,21 @@
+---
+# tasks file for myfirewall
+- name: Install Firewalld
+  ansible.builtin.dnf:
+    name: firewalld
+    state: present
+
+- name: Start Firewalld
+  ansible.builtin.systemd:
+    name: firewalld
+    state: started
+    enabled: true
+
+
+- name: Port registration -  Http, httpd
+  ansible.posix.firewalld:
+    service: "{{ item }}"
+    permanent: true
+    immediate: true
+    state: enabled
+  loop: "{{ fw_svc }}"

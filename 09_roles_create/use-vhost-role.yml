@@ -21,7 +21,6 @@
           # 5) Define handler - Restart httpd
           #####################################
 
-
     - name: Stop Role
       ansible.builtin.debug:
         msg: "Web server is configured"

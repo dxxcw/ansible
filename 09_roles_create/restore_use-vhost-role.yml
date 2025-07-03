@@ -1,0 +1,41 @@
+---
+- name: Restore use-vhost-role.yml
+  hosts: all
+  tasks:
+    - name: Delete firewalld Port
+      ansible.posix.firewalld:
+        service: "{{ item }}"
+        state: disabled
+        permanent: true
+        immediate: true
+      loop:
+        - http
+        - https
+
+    - name: Stop services
+      ansible.builtin.systemd:
+        name: "{{ item }}"
+        state: stopped
+        enabled: false
+      loop:
+        - httpd
+        - firewalld
+
+    - name: Delete Web settings
+      #################################
+      # /etc/httpd/conf.d/vhost.conf
+      # /var/www/vhost
+      #################################
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - /etc/httpd/conf.d/vhost.conf
+        - /var/www/vhost
+
+    - name: Delete packages - httpd, mod_ssl
+      ansible.builtin.dnf:
+        name:
+          - httpd
+          - mod_ssl
+        state: absent
