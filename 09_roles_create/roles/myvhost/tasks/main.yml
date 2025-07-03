@@ -1,0 +1,57 @@
+---
+# tasks file for myhost
+
+- name: Install Web Packages - httpd, mod_ssl
+  ansible.builtin.dnf:
+    name:
+      - httpd
+      - mod_ssl
+    state: present
+
+- name: Start and Enable Web Service - httpd
+  ansible.builtin.systemd:
+    name: httpd
+    state: started
+    enabled: true
+
+- name: Configure Web Service - /etc/httpd/conf.d/vhost.conf
+  ansible.builtin.template:
+    src: vhost.conf.j2
+    dest: /etc/httpd/conf.d/vhost.conf
+    owner: root
+    group: root
+    mode: '0644'
+  notify:
+    - Restart httpd
+
+- name: Create Web Root Directory - /var/www/vhosts/{{ ansible_hostname }}
+  ansible.builtin.file:
+    path: "/var/www/vhosts/{{ ansible_hostname }}"
+    state: directory
+    mode: '0755'
+
+- name: Configure SELinux context for /var/www/vhosts
+  community.general.sefcontext:
+    target: '/var/www/vhosts(/.*)?'
+    setype: httpd_sys_content_t
+    state: present
+
+- name: Apply SELinux context recursively
+  ansible.builtin.command: restorecon -ir /var/www/vhosts
+
+
+- name: Create index.html in virtual host directory
+  ansible.builtin.copy:
+    content: '<h1>Virtual Host</h1>'
+    dest: "/var/www/vhosts/{{ ansible_hostname }}/index.html"
+    mode: '0644'
+
+- name: Allow HTTP service through firewalld
+  ansible.posix.firewalld:
+    service: "{{ item }}"
+    permanent: true
+    state: enabled
+    immediate: true
+  loop:
+    - http
+    - https

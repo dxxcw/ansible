@@ -1,0 +1,27 @@
+---
+- name: Role Test - myvhost
+  hosts: webservers
+  gather_facts: true
+  tasks:
+    - name: Start Role
+      ansible.builtin.debug:
+        msg: 'Ensure web server configuration.'
+
+    - name: Role - myvhost
+      ansible.builtin.include_role:
+        name: myvhost
+          #####################################
+          # 1) Install web packages - httpd, mod_ssl
+          # 2) Start web service - httpd
+          # 3) Configure web service
+          #    - /etc/httpd/conf.d/vhost.conf (vhost.conf.j2 → vhost.conf)
+          #    - /var/www/html/index.html (index.html (with facts) → index.html)
+          # 4) Configure firewall rules
+          #    - Open HTTP and HTTPS services
+          # 5) Define handler - Restart httpd
+          #####################################
+
+
+    - name: Stop Role
+      ansible.builtin.debug:
+        msg: "Web server is configured"
